@@ -1,6 +1,10 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import styled from "styled-components";
+import axios from "axios";
+import {useNavigate} from "react-router-dom"
+import {navigateToAdmin} from "../routes/coordinator"
+
 
 const Form = styled.form`
   display: flex;
@@ -9,6 +13,7 @@ const Form = styled.form`
   gap: 5px;
 `;
 function HomePage() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({ email: "", senha: "" });
 
   const onChange = (event) => {
@@ -19,7 +24,32 @@ function HomePage() {
   const submitForm = (event) => {
     event.preventDefault();
     console.log(form);
+    login()
   };
+
+  const login = () => {
+    const aluno = "marcelo"
+    const body = {
+      email: form.email,
+      password: form.senha
+    }
+
+    axios
+    .post(`https://us-central1-labenu-apis.cloudfunctions.net/labeX/${aluno}/login`, body)
+    .then((resp)=>{
+      console.log(resp.data.token)
+      localStorage.setItem("token", resp.data.token)
+
+      //extra da pratica guiada
+      navigateToAdmin(navigate)
+
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlljTjRDSVJSUXBicFo3Y3BsNEVrIiwiZW1haWwiOiJhc3Ryb2RldkBnbWFpbC5jb20uYnIiLCJpYXQiOjE2Njk2NDM3Nzd9.edLYyfImd4EOS76UcdnuCU1tdH9eEAZGMtNMkSKiWyc"
+    })
+    .catch((erro)=>{
+      console.log(erro.response.status)
+    })
+  }
+
   return (
     <main>
       <Header />
@@ -30,7 +60,7 @@ function HomePage() {
           id="email"
           name="email"
           type="text"
-          input="form.email"
+          value={form.email}
           onChange={onChange}
           placeholder="email"
           required
@@ -41,7 +71,7 @@ function HomePage() {
           id="senha"
           name="senha"
           type="password"
-          input="form.senha"
+          value={form.senha}
           onChange={onChange}
           placeholder="senha"
           required
